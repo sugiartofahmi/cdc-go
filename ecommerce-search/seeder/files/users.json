@@ -1,0 +1,5 @@
+[
+    { "name": "Thomas Anderson", "email": "thomas.anderson@mail.com", "password": "Adm!n-9xT4vR2mL8sW", "role_name": "Super Admin" },
+    { "name": "Sarah Chen",      "email": "sarah.chen@mail.com",      "password": "Sar#7qK5pZ3wY1cV", "role_name": "Admin" },
+    { "name": "Marcus Rivera",   "email": "marcus.rivera@mail.com",   "password": "Mar$2rH6tN0qX9bE", "role_name": "Developer" }
+]

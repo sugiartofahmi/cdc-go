@@ -1,0 +1,10 @@
+.env
+go-service
+*.exe
+tmp/
+.vscode/
+.idea/
+.DS_Store
+*.log
+log/
+uploads/
