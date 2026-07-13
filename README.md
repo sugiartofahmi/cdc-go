@@ -3,19 +3,18 @@
 Change Data Capture pipeline: PostgreSQL → Debezium → Kafka → OpenSearch.
 
 Two Go services:
-- **ecommerce** (port 8080): REST API CRUD products & categories → PostgreSQL
-- **ecommerce-search** (port 8081): OpenSearch search API + Kafka consumer → OpenSearch
+- **ecommerce**: REST API CRUD products & categories → PostgreSQL
+- **ecommerce-search**: OpenSearch search API + Kafka consumer → OpenSearch
 
 ## Architecture
 
 ```
 ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────┐     ┌──────────────┐     ┌────────────┐
 │  ecommerce   │────▶│  PostgreSQL  │────▶│   Debezium   │────▶│  Kafka   │────▶│ecommerce-    │────▶│ OpenSearch │
-│  (port 8080) │     │ (wal=logical)│     │  (connect)   │     │ (broker) │     │search        │     │  :9200     │
-│  REST API    │     │              │     │   :8083       │     │  :9092   │     │(port 8081)   │     │products-   │
-│  CRUD        │     │              │     │              │     │          │     │consumer      │     │index       │
-└──────────────┘     └──────────────┘     └──────────────┘     └──────────┘     │search API    │     └────────────┘
-                                                                                └──────────────┘
+│  REST API    │     │ (wal=logical)│     │   Connect    │     │          │     │search        │     │            │
+│  CRUD        │     │              │     │              │     │          │     │consumer      │     │products-   │
+└──────────────┘     └──────────────┘     └──────────────┘     └──────────┘     │search API    │     │index       │
+                                                                                └──────────────┘     └────────────┘
 ```
 
 ## How CDC Works
@@ -134,7 +133,7 @@ docker exec cdc-kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhos
 # → ecommerce.public.categories
 ```
 
-### 3. ecommerce Service (port 8080)
+### 3. ecommerce Service
 
 ```bash
 cd ecommerce
@@ -142,7 +141,7 @@ cp .env-example .env
 go run main.go
 ```
 
-### 4. ecommerce-search Service (port 8081)
+### 4. ecommerce-search Service
 
 ```bash
 cd ecommerce-search
