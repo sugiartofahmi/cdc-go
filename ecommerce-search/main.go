@@ -17,6 +17,7 @@ import (
 	"go-service/infrastructure/middlewares"
 	"go-service/infrastructure/singleton"
 
+	kafkaFactory "go-service/infrastructure/kafka/factories"
 	redisFactory "go-service/infrastructure/redis/factories"
 
 	productInterfaces "go-service/domain/product/interfaces"
@@ -56,7 +57,12 @@ func initializeSingleton() {
 
 	httpClient := integrations.NewHttpClient()
 
-	singleton.Init(httpClient, redis, opensearch)
+	kafka, err := kafkaFactory.NewKafka()
+	if err != nil {
+		panic(err)
+	}
+
+	singleton.Init(httpClient, redis, opensearch, kafka)
 
 	log.Println("singletons initialized")
 }
