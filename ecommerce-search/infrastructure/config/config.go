@@ -28,6 +28,20 @@ func Get(key, defaultValue string) string {
 	return defaultValue
 }
 
+func stringToInt(value string) int {
+	if value == "" {
+		return 0
+	}
+	var result int
+	for _, c := range value {
+		if c < '0' || c > '9' {
+			return 0
+		}
+		result = result*10 + int(c-'0')
+	}
+	return result
+}
+
 func GetRequired(key string) string {
 	LoadConfig()
 	value := os.Getenv(key)

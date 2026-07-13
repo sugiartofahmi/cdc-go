@@ -12,9 +12,9 @@ import (
 )
 
 type HealthStatus struct {
-	Service  string `json:"service"`
-	Database string `json:"database"`
-	Redis    string `json:"redis"`
+	Service    string `json:"service"`
+	Redis      string `json:"redis"`
+	OpenSearch string `json:"opensearch"`
 }
 
 type HealthController struct{}
@@ -30,16 +30,9 @@ func (h *HealthController) Check() gin.HandlerFunc {
 		defer cancel()
 
 		status := HealthStatus{
-			Service:  "ok",
-			Database: "ok",
-			Redis:    "ok",
-		}
-
-		sqlDB, err := singleton.PostgresSingleton().DB()
-		if err != nil {
-			status.Database = "error: " + err.Error()
-		} else if err := sqlDB.PingContext(ctx); err != nil {
-			status.Database = "error: " + err.Error()
+			Service:    "ok",
+			Redis:      "ok",
+			OpenSearch: "ok",
 		}
 
 		redisClient := singleton.RedisSingleton()
@@ -49,7 +42,14 @@ func (h *HealthController) Check() gin.HandlerFunc {
 			status.Redis = "error: " + err.Error()
 		}
 
-		allHealthy := status.Service == "ok" && status.Database == "ok" && status.Redis == "ok"
+		opensearchClient := singleton.OpensearchSingleton()
+		if opensearchClient == nil {
+			status.OpenSearch = "error: opensearch client not initialized"
+		} else if _, err := opensearchClient.Ping(ctx, nil); err != nil {
+			status.OpenSearch = "error: " + err.Error()
+		}
+
+		allHealthy := status.Service == "ok" && status.Redis == "ok" && status.OpenSearch == "ok"
 
 		if allHealthy {
 			response := utils.SuccessResponse(http.StatusOK, "service is healthy", status)
