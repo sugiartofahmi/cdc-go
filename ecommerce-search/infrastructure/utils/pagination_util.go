@@ -1,22 +1,24 @@
 package utils
 
 import (
-	"gorm.io/gorm"
-
 	infradtos "go-service/infrastructure/dtos"
+	"go-service/infrastructure/enums"
 )
 
-func Paginate(q *infradtos.PaginationQueryRequestDto) func(*gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		if q.Page <= 0 {
-			q.Page = 1
-		}
+func Paginate(q *infradtos.PaginationQueryRequestDto) {
+	if q.Page <= 0 {
+		q.Page = 1
+	}
 
-		if q.PerPage <= 0 || q.PerPage > 100 {
-			q.PerPage = 10
-		}
+	if q.PerPage <= 0 || q.PerPage > 100 {
+		q.PerPage = 10
+	}
 
-		offset := (q.Page - 1) * q.PerPage
-		return db.Offset(offset).Limit(q.PerPage)
+	if q.SortBy == "" {
+		q.SortBy = "created_at"
+	}
+
+	if q.Order == "" {
+		q.Order = enums.SortOrderDesc
 	}
 }

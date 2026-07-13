@@ -4,17 +4,14 @@ import (
 	"go-service/infrastructure/enums"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type PaginationQueryRequestDto struct {
-	Search             string              `form:"search"`
-	PerPage            int                 `form:"per_page"`
-	Page               int                 `form:"page"`
-	SortBy             string              `form:"sort_by"`
-	Order              enums.SortOrderEnum `form:"order"`
-	CurrentUserId      *uuid.UUID
-	CurrentUserRoleName *string
+	Search  string              `form:"search"`
+	PerPage int                 `form:"per_page"`
+	Page    int                 `form:"page"`
+	SortBy  string              `form:"sort_by"`
+	Order   enums.SortOrderEnum `form:"order"`
 }
 
 func AssignPaginationQueryRequestDto(c *gin.Context) *PaginationQueryRequestDto {

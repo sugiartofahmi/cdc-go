@@ -19,16 +19,25 @@ import (
 
 	redisFactory "go-service/infrastructure/redis/factories"
 
+	productInterfaces "go-service/domain/product/interfaces"
+	productRepositories "go-service/domain/product/repositories"
+	productServices "go-service/domain/product/services"
+
 	healthController "go-service/presentation/api/health/controller"
+	productController "go-service/presentation/api/v1/product/controller"
 )
 
 var (
-	router *gin.Engine
+	router                 *gin.Engine
+	productQueryRepository productInterfaces.ProductQueryRepositoryInterface
+	productService         productInterfaces.ProductServiceInterface
 )
 
 func main() {
 	initializeSingleton()
 	initializeRouter()
+	initializeRepositories()
+	initializeServices()
 	initializeControllers()
 	initializeIndexer()
 	initializeHttpServer()
@@ -73,8 +82,19 @@ func initializeRouter() {
 	router.Use(middlewares.ExceptionMiddleware())
 }
 
+func initializeRepositories() {
+	productQueryRepository = productRepositories.NewProductQueryRepository(singleton.OpensearchSingleton())
+	log.Println("repositories initialized")
+}
+
+func initializeServices() {
+	productService = productServices.NewProductService(productQueryRepository)
+	log.Println("services initialized")
+}
+
 func initializeControllers() {
 	healthController.NewHealthController(router)
+	productController.NewProductController(router, productService)
 	log.Println("controllers initialized")
 }
 
