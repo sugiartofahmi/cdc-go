@@ -22,8 +22,8 @@ Two Go services:
 
 ### PostgreSQL WAL (Write-Ahead Log)
 
-PostgreSQL mencatat setiap perubahan data (INSERT/UPDATE/DELETE) ke WAL sebelum ditulis ke tabel.
-Ada 3 level WAL:
+PostgreSQL records every data change (INSERT/UPDATE/DELETE) to WAL before writing to tables.
+There are 3 WAL levels:
 
 | Level   | Output                        | Debezium Support |
 |---------|-------------------------------|------------------|
@@ -31,8 +31,8 @@ Ada 3 level WAL:
 | replica | Block-level changes           | No               |
 | logical | Row-level changes with data   | **Yes**          |
 
-Hanya `wal_level=logical` yang bisa dibaca Debezium — karena ngirim row-level events lengkap
-seperti `{op: "u", id: "xxx", name: "iPhone 15"}`.
+Only `wal_level=logical` can be read by Debezium because it sends complete row-level events
+like `{op: "u", id: "xxx", name: "iPhone 15"}`.
 
 ### How Debezium Listens to PostgreSQL
 
@@ -51,11 +51,11 @@ Debezium acts as both:
 - **Producer** (to Kafka): writes transformed events to Kafka topics
 
 3 key components:
+1. **Publication** - declares which tables to stream (`CREATE PUBLICATION FOR TABLE products, categories`)
 
-1. **Publication** — declares which tables to stream (`CREATE PUBLICATION FOR TABLE products, categories`)
-2. **Replication slot** — bookmarks Debezium's WAL position, prevents data loss during disconnects
-3. **pgoutput plugin** — decodes WAL binary into row-level JSON events
+2. **Replication slot** - bookmarks Debezium's WAL position, prevents data loss during disconnects
 
+3. **pgoutput plugin** - decodes WAL binary into row-level JSON events
 ---
 
 ## Prerequisites
