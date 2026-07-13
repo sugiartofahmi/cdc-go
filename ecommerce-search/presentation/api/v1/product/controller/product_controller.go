@@ -17,7 +17,7 @@ type ProductController struct {
 
 func NewProductController(router *gin.Engine, productService productInterfaces.ProductServiceInterface) {
 	controller := &ProductController{productService: productService}
-	router.GET("/products", controller.Pagination())
+	router.GET("/api/v1/products", controller.Pagination())
 }
 
 func (c *ProductController) Pagination() gin.HandlerFunc {

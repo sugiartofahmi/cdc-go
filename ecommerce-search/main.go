@@ -124,9 +124,12 @@ func initializeKafkaConsumer() {
 		switch msg.Topic {
 		case "ecommerce.public.products":
 			event := productDtos.ProductEventDtoFromMessage(msg)
-			if event != nil {
-				productEventService.Handle(ctx, event)
+			if event == nil {
+				log.Println("failed to parse product event")
+				return nil
 			}
+			log.Printf("kafka event: topic=%s op=%s id=%s", msg.Topic, event.Operation, event.Id)
+			productEventService.Handle(ctx, event)
 		}
 		return nil
 	}

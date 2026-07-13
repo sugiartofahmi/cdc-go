@@ -46,6 +46,7 @@ func (r *ProductStoreRepository) Upsert(ctx context.Context, dto *productDtos.Pr
 		log.Println("Error upsert product to opensearch:", err)
 		panic(*exceptions.ServerErrorException(err))
 	}
+	log.Printf("product upserted to opensearch: id=%s", dto.Id)
 }
 
 func (r *ProductStoreRepository) Delete(ctx context.Context, id string) {
@@ -64,4 +65,5 @@ func (r *ProductStoreRepository) Delete(ctx context.Context, id string) {
 		log.Println("Error delete product from opensearch:", err)
 		panic(*exceptions.ServerErrorException(err))
 	}
+	log.Printf("product deleted from opensearch: id=%s", id)
 }

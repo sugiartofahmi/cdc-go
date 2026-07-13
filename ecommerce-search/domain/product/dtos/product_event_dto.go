@@ -18,6 +18,7 @@ type ProductEventDto struct {
 	CategoryId  string  `json:"category_id"`
 	CreatedAt   string  `json:"created_at"`
 	UpdatedAt   string  `json:"updated_at"`
+	DeletedAt   *string  `json:"deleted_at"`
 }
 
 func ProductEventDtoFromMessage(msg kafka.Message) *ProductEventDto {
