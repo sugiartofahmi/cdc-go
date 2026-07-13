@@ -7,13 +7,13 @@ import (
 )
 
 type ProductResultDto struct {
-	ID           string  `json:"id"`
+	Id string `json:"id"`
 	Name         string  `json:"name"`
 	Slug         string  `json:"slug"`
 	Description  string  `json:"description"`
 	Price        float64 `json:"price"`
 	Stock        int     `json:"stock"`
-	CategoryID   string  `json:"category_id"`
+	CategoryId   string  `json:"category_id"`
 	CategoryName string  `json:"category_name"`
 	CategorySlug string  `json:"category_slug"`
 	CreatedAt    string  `json:"created_at"`
