@@ -20,53 +20,40 @@ import (
 	"go-service/infrastructure/middlewares"
 	"go-service/infrastructure/singleton"
 
-	userInterfaces "go-service/domain/user/interfaces"
-	userRepositories "go-service/domain/user/repositories"
-	userServices "go-service/domain/user/services"
+	categoryInterfaces "go-service/domain/category/interfaces"
+	categoryRepositories "go-service/domain/category/repositories"
+	categoryServices "go-service/domain/category/services"
 
-	roleInterfaces "go-service/domain/role/interfaces"
-	roleRepositories "go-service/domain/role/repositories"
-	roleServices "go-service/domain/role/services"
-
-	authInterfaces "go-service/domain/auth/interfaces"
-	authRepositories "go-service/domain/auth/repositories"
-	authServices "go-service/domain/auth/services"
-
-	healthController "go-service/presentation/api/health/controller"
-	roleController "go-service/presentation/api/v1/role/controller"
-	userController "go-service/presentation/api/v1/user/controller"
-	authController "go-service/presentation/api/v1/auth/controller"
+	productInterfaces "go-service/domain/product/interfaces"
+	productRepositories "go-service/domain/product/repositories"
+	productServices "go-service/domain/product/services"
 
 	redisFactory "go-service/infrastructure/redis/factories"
 	redisInterfaces "go-service/infrastructure/redis/interfaces"
 	redisServices "go-service/infrastructure/redis/services"
-
-	"github.com/opensearch-project/opensearch-go/v4/opensearchapi"
+	healthController "go-service/presentation/api/health/controller"
+	categoryController "go-service/presentation/api/v1/category/controller"
+	productController "go-service/presentation/api/v1/product/controller"
 
 	"go-service/migration"
 	"go-service/seeder"
 )
 
 var (
-	router                       *gin.Engine
-	redisCache                  redisInterfaces.RedisCacheInterface
-	userQueryRepository         userInterfaces.UserQueryRepositoryInterface
-	userStoreRepository         userInterfaces.UserStoreRepositoryInterface
-	userRoleQueryRepository     userInterfaces.UserRoleQueryRepositoryInterface
-	userService                 userInterfaces.UserServiceInterface
-	roleQueryRepository         roleInterfaces.RoleQueryRepositoryInterface
-	roleStoreRepository         roleInterfaces.RoleStoreRepositoryInterface
-	roleService                 roleInterfaces.RoleServiceInterface
-	authUserQueryRepository     authInterfaces.AuthUserQueryRepositoryInterface
-	authUserStoreRepository     authInterfaces.AuthUserStoreRepositoryInterface
-	authRoleQueryRepository     authInterfaces.AuthRoleQueryRepositoryInterface
-	authService                 authInterfaces.AuthServiceInterface
-	execMigration               *string
-	flagMigration               *string
-	migrationFileName           *string
-	autoMigrateFlag             *string
-	flagSeeder                 *string
-	seederTarget               *string
+	router                 *gin.Engine
+	redisCache                 redisInterfaces.RedisCacheInterface
+	categoryQueryRepository categoryInterfaces.CategoryQueryRepositoryInterface
+	categoryStoreRepository categoryInterfaces.CategoryStoreRepositoryInterface
+	categoryService         categoryInterfaces.CategoryServiceInterface
+	productQueryRepository  productInterfaces.ProductQueryRepositoryInterface
+	productStoreRepository  productInterfaces.ProductStoreRepositoryInterface
+	productService          productInterfaces.ProductServiceInterface
+	execMigration           *string
+	flagMigration           *string
+	migrationFileName       *string
+	autoMigrateFlag         *string
+	flagSeeder              *string
+	seederTarget            *string
 )
 
 func main() {
@@ -103,19 +90,10 @@ func initializeSingleton() {
 		panic(err)
 	}
 
-	var opensearch *opensearchapi.Client
-	if config.OpensearchHost != "" && config.OpensearchPassword != "" {
-		opensearch, err = databases.NewOpenSearchConnection()
-		if err != nil {
-			log.Printf("warn: opensearch connection failed: %v", err)
-		}
-	} else {
-		log.Println("opensearch skipped: OPENSEARCH_HOST or OPENSEARCH_PASSWORD not set")
-	}
 
 	httpClient := integrations.NewHttpClient()
 
-	singleton.Init(httpClient, db, redis, opensearch)
+	singleton.Init(httpClient, db, redis)
 	redisCache = redisServices.NewRedisCacheService(redis)
 
 	log.Println("singletons initialized")
@@ -188,29 +166,23 @@ func initializeSchedulers() {
 }
 
 func initializeRepositories() {
-	userQueryRepository         = userRepositories.NewUserQueryRepository(singleton.PostgresSingleton())
-	userStoreRepository         = userRepositories.NewUserStoreRepository(singleton.PostgresSingleton())
-	userRoleQueryRepository     = userRepositories.NewUserRoleQueryRepository(singleton.PostgresSingleton())
-	roleQueryRepository         = roleRepositories.NewRoleQueryRepository(singleton.PostgresSingleton())
-	roleStoreRepository         = roleRepositories.NewRoleStoreRepository(singleton.PostgresSingleton())
-	authUserQueryRepository     = authRepositories.NewAuthUserQueryRepository(singleton.PostgresSingleton())
-	authUserStoreRepository     = authRepositories.NewAuthUserStoreRepository(singleton.PostgresSingleton())
-	authRoleQueryRepository     = authRepositories.NewAuthRoleQueryRepository(singleton.PostgresSingleton())
+	categoryQueryRepository = categoryRepositories.NewCategoryQueryRepository(singleton.PostgresSingleton())
+	categoryStoreRepository = categoryRepositories.NewCategoryStoreRepository(singleton.PostgresSingleton())
+	productQueryRepository = productRepositories.NewProductQueryRepository(singleton.PostgresSingleton())
+	productStoreRepository = productRepositories.NewProductStoreRepository(singleton.PostgresSingleton())
 	log.Println("repositories initialized")
 }
 
 func initializeServices() {
-	userService = userServices.NewUserService(userQueryRepository, userStoreRepository, userRoleQueryRepository)
-	roleService = roleServices.NewRoleService(roleQueryRepository, roleStoreRepository)
-	authService = authServices.NewAuthService(authUserQueryRepository, authUserStoreRepository, authRoleQueryRepository)
+	categoryService = categoryServices.NewCategoryService(categoryQueryRepository, categoryStoreRepository)
+	productService = productServices.NewProductService(productQueryRepository, productStoreRepository, categoryQueryRepository)
 	log.Println("services initialized")
 }
 
 func initializeControllers() {
 	healthController.NewHealthController(router)
-	roleController.NewRoleController(router, roleService)
-	userController.NewUserController(router, userService)
-	authController.NewAuthController(router, authService)
+	categoryController.NewCategoryController(router, categoryService)
+	productController.NewProductController(router, productService)
 	log.Println("controllers initialized")
 }
 

@@ -9,8 +9,8 @@ import (
 func Run(db *gorm.DB, seederCommands []string) error {
 	if len(seederCommands) > 0 {
 		listSeeders := map[string]Seeder{
-			"RoleSeeder": NewRoleSeeder(),
-			"UserSeeder": NewUserSeeder(),
+			"CategorySeeder": NewCategorySeeder(),
+			"ProductSeeder":  NewProductSeeder(),
 		}
 		for _, name := range seederCommands {
 			s, ok := listSeeders[name]
@@ -23,12 +23,12 @@ func Run(db *gorm.DB, seederCommands []string) error {
 			}
 		}
 	} else {
-		db.Exec(`DELETE FROM users`)
-		db.Exec(`DELETE FROM roles`)
+		db.Exec(`DELETE FROM products`)
+		db.Exec(`DELETE FROM categories`)
 
 		for _, s := range []Seeder{
-			NewRoleSeeder(),
-			NewUserSeeder(),
+			NewCategorySeeder(),
+			NewProductSeeder(),
 		} {
 			if err := s.Handle(db); err != nil {
 				return err
